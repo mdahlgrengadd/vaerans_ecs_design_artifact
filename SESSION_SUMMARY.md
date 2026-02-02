@@ -2,7 +2,23 @@
 
 ## Completed Tasks
 
-### 1. ✅ Fixed PyWavelets Warning
+### 1. ✅ Fixed Critical Hadamard Transform Bug 🔴
+**Problem**: `compress()` applied Hadamard transform but `decompress()` didn't reverse it, causing completely wrong reconstructed images
+
+**Solution**:
+- Added `use_hadamard` flag to serialization metadata
+- Updated `compress()` to pass the flag
+- Updated `decompress()` to check metadata and apply inverse Hadamard when needed
+
+**Impact**: This was breaking ALL default compressions (use_hadamard=True by default)
+
+**Files Changed**:
+- `vaerans_ecs/core/serialization.py`
+- `vaerans_ecs/api.py`
+
+**Details**: See `HADAMARD_FIX_SUMMARY.md`
+
+### 2. ✅ Fixed PyWavelets Warning
 **Problem**: `fluent_api_complete.py` used 4 wavelet decomposition levels, causing boundary effects warning
 
 **Solution**: 
@@ -14,7 +30,7 @@
 **Files Changed**:
 - `examples/fluent_api_complete.py`
 
-### 2. ✅ Fixed Constriction Warning
+### 3. ✅ Fixed Constriction Warning
 **Problem**: ANS entropy coding showed deprecation warning about `perfect` parameter
 
 **Solution**:
