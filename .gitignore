@@ -54,4 +54,3 @@ models/*.bin
 
 # Local output images
 examples/hadamard_channels/
-examples/klt_latent4*.npz

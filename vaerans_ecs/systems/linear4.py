@@ -78,6 +78,47 @@ class LinearTransform4(System):
             mode=mode,
         )
 
+
+def linear4_pair_from_npz(
+    path: str | Path,
+    *,
+    input_component: type,
+    input_attr: str,
+    output_component: type,
+    output_attr: str,
+    forward_key: str = "klt_forward",
+    inverse_key: str = "klt_inverse",
+    orthonormal: bool = True,
+    output_dtype: np.dtype | None = None,
+) -> tuple[LinearTransform4, LinearTransform4]:
+    """Load matrices from .npz and return (forward, inverse) systems."""
+    data = np.load(str(path))
+    forward = data[forward_key]
+    inverse = data[inverse_key] if inverse_key in data and inverse_key else None
+    forward_sys = LinearTransform4(
+        forward,
+        inverse=inverse,
+        input_component=input_component,
+        input_attr=input_attr,
+        output_component=output_component,
+        output_attr=output_attr,
+        orthonormal=orthonormal,
+        output_dtype=output_dtype,
+        mode="forward",
+    )
+    inverse_sys = LinearTransform4(
+        forward,
+        inverse=inverse,
+        input_component=input_component,
+        input_attr=input_attr,
+        output_component=output_component,
+        output_attr=output_attr,
+        orthonormal=orthonormal,
+        output_dtype=output_dtype,
+        mode="inverse",
+    )
+    return forward_sys, inverse_sys
+
     def required_components(self) -> list[type]:
         if self.mode in ("encode", "forward"):
             return [self.input_component]
