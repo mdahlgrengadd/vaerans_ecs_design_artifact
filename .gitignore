@@ -1,0 +1,53 @@
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Packaging / build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Test / coverage artifacts
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Type checker / linter caches
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local tool settings
+.claude/
+
+# Local config
+vaerans_ecs.toml
+
+# Large model artifacts
+models/*.onnx
+models/*.pt
+models/*.pth
+models/*.ckpt
+models/*.safetensors
+models/*.bin
+
+# Logs / temp
+*.log
+*.tmp

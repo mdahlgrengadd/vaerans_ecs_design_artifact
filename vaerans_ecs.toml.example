@@ -1,0 +1,57 @@
+# VAE+ANS Configuration Example
+# Copy this file to vaerans_ecs.toml and update paths to your ONNX models
+# Or set VAERANS_CONFIG environment variable to point to your config file
+
+[models]
+# ONNX Runtime execution provider
+# Options: "CPUExecutionProvider", "CUDAExecutionProvider", "TensorrtExecutionProvider"
+execution_provider = "CPUExecutionProvider"
+
+# VAE model paths (required for compression)
+# These should be ONNX models with the following interface:
+# - Encoder: input (1, 3, H, W) -> output (1, 4, H/8, W/8)
+# - Decoder: input (1, 4, h, w) -> output (1, 3, h*8, w*8)
+
+[models.sdxl-vae]
+encoder = "models/vae_encoder_sdxl.onnx"
+decoder = "models/vae_decoder_sdxl.onnx"
+description = "Stable Diffusion XL VAE (8x downsampling)"
+input_range = "-1_1"
+output_range = "-1_1"
+latent_scale = 0.13025
+decoder_expects_scaled_latent = true
+
+[models.custom-vae]
+encoder = "/path/to/custom_encoder.onnx"
+decoder = "/path/to/custom_decoder.onnx"
+description = "Custom VAE model"
+input_range = "0_1"
+output_range = "0_1"
+
+# Memory settings
+[memory]
+# Default arena size in bytes (512 MB)
+arena_size = 536870912
+
+# Compression defaults
+[compression]
+default_model = "sdxl-vae"
+default_quality = 50
+default_wavelet = "bior2.2"
+default_wavelet_levels = 4
+
+# Evaluation settings
+[evaluation]
+# Metrics to compute during evaluation
+metrics = ["psnr", "ssim", "ms-ssim"]
+
+# Quality range for RD curve generation
+quality_range = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+
+# Visualization settings
+[visualization]
+# DPI for saved plots
+dpi = 150
+
+# Figure size (width, height) in inches
+figsize = [10, 6]

@@ -1,0 +1,28 @@
+# Test configuration for VAE systems using real SDXL models
+# The tests reference the "test-vae" model name, which is mapped to SDXL here.
+
+[models]
+execution_provider = "CPUExecutionProvider"
+
+[models.test-vae]
+encoder = "../../models/vae_encoder_sdxl.onnx"
+decoder = "../../models/vae_decoder_sdxl.onnx"
+description = "Stable Diffusion XL VAE (8x downsampling)"
+input_range = "-1_1"
+output_range = "-1_1"
+latent_scale = 0.13025
+decoder_expects_scaled_latent = true
+
+[models.sdxl-vae]
+encoder = "../../models/vae_encoder_sdxl.onnx"
+decoder = "../../models/vae_decoder_sdxl.onnx"
+description = "Stable Diffusion XL VAE (8x downsampling)"
+
+[memory]
+arena_size = 536870912  # 512 MB
+
+[compression]
+default_model = "test-vae"
+default_quality = 50
+default_wavelet = "bior2.2"
+default_wavelet_levels = 4
