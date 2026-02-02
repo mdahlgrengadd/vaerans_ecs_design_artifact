@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
-"""Quickstart example using the high-level compress/decompress API.
+"""Quickstart example using the high-level compress/decompress API (Phase 13).
 
-This example loads an image (or generates a random one), compresses it with the
-SDXL VAE model, and then decompresses it back to an RGB array.
+This example demonstrates the simplest way to use the SDK:
+- Load an image (or generate a random one)
+- Compress it with the SDXL VAE model using compress()
+- Decompress it back to RGB using decompress()
+- Compute quality metrics
+
+The high-level API hides all the ECS complexity and provides a simple,
+one-line interface for compression and decompression.
 """
 
 from __future__ import annotations

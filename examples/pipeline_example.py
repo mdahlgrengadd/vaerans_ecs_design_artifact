@@ -44,12 +44,12 @@ def main() -> None:
 
     # Create world with arena
     world = World(arena_bytes=256 << 20)  # 256 MB
-    print("✓ Created World with 256 MB arena\n")
+    print("[OK] Created World with 256 MB arena\n")
 
     # Create a test image
     img = np.random.randint(0, 256, (256, 256, 3), dtype=np.uint8)
     entity = world.spawn_image(img)
-    print(f"✓ Created image entity {entity} with shape {img.shape}\n")
+    print(f"[OK] Created image entity {entity} with shape {img.shape}\n")
 
     # Example 1: Simple pipeline with .to() method
     print("Example 1: Simple pipeline with .to()")
@@ -59,7 +59,8 @@ def main() -> None:
         .to(DummyVAEEncoder())
         .out(Latent4)
     )
-    print(f"✓ Encoded image to latent with shape {world.arena.view(latent.z).shape}\n")
+    print(
+        f"[OK] Encoded image to latent with shape {world.arena.view(latent.z).shape}\n")
 
     # Example 2: Chained transformation pipeline
     print("Example 2: Chained transformations")
@@ -78,10 +79,11 @@ def main() -> None:
         .out(Latent4)
     )
     result_view = world.arena.view(result.z)
-    print(f"✓ Forward + inverse transforms (round-trip)")
+    print(f"[OK] Forward + inverse transforms (round-trip)")
     print(f"  Input shape:  {latent_data.shape}")
     print(f"  Output shape: {result_view.shape}")
-    print(f"  Recovery error (MSE): {np.mean((result_view - latent_data)**2):.2e}\n")
+    print(
+        f"  Recovery error (MSE): {np.mean((result_view - latent_data)**2):.2e}\n")
 
     # Example 3: Using pipe operator |
     print("Example 3: Using pipe operator |")
@@ -94,7 +96,7 @@ def main() -> None:
         | Hadamard4(mode="forward")
         | Hadamard4(mode="inverse")
     ).out(Latent4)
-    print(f"✓ Pipe operator | works identically to .to()\n")
+    print(f"[OK] Pipe operator | works identically to .to()\n")
 
     # Example 4: Processing multiple entities
     print("Example 4: Multiple entities separately")
@@ -105,7 +107,7 @@ def main() -> None:
         np.random.randint(0, 256, (128, 128, 3), dtype=np.uint8),
     ]
     eids = world.spawn_batch_images(images)
-    print(f"✓ Created batch of {len(eids)} images")
+    print(f"[OK] Created batch of {len(eids)} images")
 
     # Each entity gets its own pipeline
     for i, eid in enumerate(eids):
@@ -129,7 +131,7 @@ def main() -> None:
         .to(Hadamard4(mode="forward"))
         .out(YUVW4)
     )
-    print(f"✓ Used .select(Latent4) to process specific component")
+    print(f"[OK] Used .select(Latent4) to process specific component")
     print(f"  Output type: YUVW4")
     print(f"  Transformed shape: {world.arena.view(yuvw.t).shape}\n")
 
@@ -145,19 +147,19 @@ def main() -> None:
         .to(Hadamard4(mode="forward"))
         .out(YUVW4)
     )
-    print(f"✓ .use() is cleaner alias for component selection\n")
+    print(f"[OK] .use() is cleaner alias for component selection\n")
 
     # Summary
     print("Summary")
     print("=" * 40)
-    print("✓ Pipe.to() adds systems to pipeline")
-    print("✓ Pipe | operator provides alternative syntax")
-    print("✓ Pipe.select()/use() branches to different components")
-    print("✓ Pipe.out() executes pipeline and returns result")
-    print("✓ Pipe.execute() runs without returning component")
-    print("✓ Type-safe: IDE knows result types after .out()")
-    print("✓ Composable: chain multiple systems seamlessly")
-    print("\n✓ Phase 11 complete: Fluent API enables elegant pipelines!")
+    print("[OK] Pipe.to() adds systems to pipeline")
+    print("[OK] Pipe | operator provides alternative syntax")
+    print("[OK] Pipe.select()/use() branches to different components")
+    print("[OK] Pipe.out() executes pipeline and returns result")
+    print("[OK] Pipe.execute() runs without returning component")
+    print("[OK] Type-safe: IDE knows result types after .out()")
+    print("[OK] Composable: chain multiple systems seamlessly")
+    print("\n[OK] Phase 11 complete: Fluent API enables elegant pipelines!")
 
 
 if __name__ == "__main__":
