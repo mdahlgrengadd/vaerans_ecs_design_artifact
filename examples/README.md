@@ -1,8 +1,37 @@
 # Examples
 
-These scripts demonstrate common workflows using the VAE+ANS ECS SDK. The default
+These examples demonstrate common workflows using the VAE+ANS ECS SDK. The default
 configuration in `vaerans_ecs.toml` points to the real SDXL VAE ONNX models in
 `models/`.
+
+## 📓 Interactive Tutorial (Google Colab)
+
+**File:** `tutorial.ipynb` ⭐ **RECOMMENDED FOR BEGINNERS**
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/YOUR_USERNAME/vaerans_ecs_design_artifact/blob/main/examples/tutorial.ipynb)
+
+Interactive Jupyter notebook that runs on Google Colab with zero setup required!
+
+**Features:**
+- 🚀 **No installation needed**: Runs directly in your browser
+- 📦 **Automatic setup**: Clones repo and installs dependencies
+- 🎓 **Learn by doing**: Step-by-step guide with live code
+- 📊 **Visual results**: See compression results with matplotlib
+- ⚡ **Five tutorials in one**:
+  1. High-level `compress()`/`decompress()` API
+  2. Low-level ECS pipeline construction
+  3. Batch processing
+  4. Fluent pipeline API
+  5. Quality metrics and visualization
+
+**Quick Start:**
+1. Click the "Open in Colab" badge above
+2. Click "Runtime" → "Run all"
+3. Watch the magic happen! ✨
+
+*Note: Update `YOUR_USERNAME` in the badge link with your GitHub username. See `COLAB_SETUP.md` for details.*
+
+---
 
 ## Quick Start Examples
 
