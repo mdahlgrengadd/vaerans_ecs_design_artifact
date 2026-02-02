@@ -44,6 +44,7 @@ def serialize_bitstream(
     levels: int,
     image_shape: tuple[int, int, int],
     quant_params: QuantParams,
+    use_hadamard: bool = False,
 ) -> bytes:
     """Serialize ANSBitstream component to bytes.
 
@@ -54,6 +55,7 @@ def serialize_bitstream(
         levels: Number of wavelet decomposition levels
         image_shape: Original image shape (H, W, 3)
         quant_params: Quantization parameters
+        use_hadamard: Whether Hadamard transform was applied (default: False)
 
     Returns:
         Serialized bitstream as bytes
@@ -81,6 +83,7 @@ def serialize_bitstream(
         "wavelet_levels": levels,
         "image_shape": list(image_shape),
         "initial_state": bitstream.initial_state,
+        "use_hadamard": use_hadamard,
     }
     metadata_bytes = json.dumps(metadata).encode("utf-8")
 

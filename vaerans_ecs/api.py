@@ -126,6 +126,7 @@ def compress(
             levels=1,  # Single latent layer, not wavelet decomposed yet
             image_shape=image.shape,
             quant_params=dummy_quant_params,
+            use_hadamard=use_hadamard,
         )
 
     finally:
@@ -201,17 +202,34 @@ def decompress(
         latent_array = latent_array[:expected_len].reshape(4, h, w)
 
         # Copy to arena
-        from vaerans_ecs.components.latent import Latent4
+        from vaerans_ecs.components.latent import Latent4, YUVW4
 
         latent_ref = world.arena.copy_tensor(latent_array)
-        world.add_component(entity, Latent4(z=latent_ref))
-
-        # Build decode pipeline
-        recon: ReconRGB = (
-            world.pipe(entity)
-            .to(OnnxVAEDecode(model=metadata["model"], mode="decode", config_path=config_path))
-            .out(ReconRGB)
-        )
+        
+        # Check if Hadamard transform was used during compression
+        use_hadamard = metadata.get("use_hadamard", False)
+        
+        if use_hadamard:
+            # Data is in YUVW4 space, need inverse Hadamard before VAE decode
+            world.add_component(entity, YUVW4(t=latent_ref))
+            
+            # Build decode pipeline with inverse Hadamard
+            recon: ReconRGB = (
+                world.pipe(entity)
+                .to(Hadamard4(mode="inverse"))
+                .to(OnnxVAEDecode(model=metadata["model"], mode="decode", config_path=config_path))
+                .out(ReconRGB)
+            )
+        else:
+            # Data is in Latent4 space, decode directly
+            world.add_component(entity, Latent4(z=latent_ref))
+            
+            # Build decode pipeline
+            recon: ReconRGB = (
+                world.pipe(entity)
+                .to(OnnxVAEDecode(model=metadata["model"], mode="decode", config_path=config_path))
+                .out(ReconRGB)
+            )
 
         # Get reconstructed image view
         recon_view = world.arena.view(recon.pix)
