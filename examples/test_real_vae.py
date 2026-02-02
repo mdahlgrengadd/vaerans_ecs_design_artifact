@@ -12,9 +12,10 @@ from pathlib import Path
 
 import numpy as np
 
-from vaerans_ecs.components.image import ReconRGB
+from vaerans_ecs.components.image import RGB, ReconRGB
 from vaerans_ecs.components.latent import Latent4
 from vaerans_ecs.core.world import World
+from vaerans_ecs.systems.metrics import MetricPSNR, MetricSSIM
 from vaerans_ecs.systems.vae import OnnxVAEDecode, OnnxVAEEncode
 
 
@@ -68,9 +69,9 @@ def main() -> None:
     try:
         encoder = OnnxVAEEncode(model=args.model, config_path=str(config_path))
         encoder.run(world, [eid])
-        print("✓ Encoding successful")
+        print("[OK] Encoding successful")
     except Exception as e:
-        print(f"✗ Encoding failed: {e}")
+        print(f"[X] Encoding failed: {e}")
         return
 
     # Check latent
@@ -79,9 +80,10 @@ def main() -> None:
         latent_view = world.arena.view(latent.z)
         print(f"  Latent shape: {latent_view.shape}")
         print(f"  Latent dtype: {latent_view.dtype}")
-        print(f"  Latent range: [{latent_view.min():.2f}, {latent_view.max():.2f}]")
+        print(
+            f"  Latent range: [{latent_view.min():.2f}, {latent_view.max():.2f}]")
     else:
-        print("✗ Latent4 component not created")
+        print("[X] Latent4 component not created")
         return
 
     # Decode
@@ -89,9 +91,9 @@ def main() -> None:
     try:
         decoder = OnnxVAEDecode(model=args.model, config_path=str(config_path))
         decoder.run(world, [eid])
-        print("✓ Decoding successful")
+        print("[OK] Decoding successful")
     except Exception as e:
-        print(f"✗ Decoding failed: {e}")
+        print(f"[X] Decoding failed: {e}")
         return
 
     # Check reconstruction
@@ -100,7 +102,8 @@ def main() -> None:
         recon_view = world.arena.view(recon.pix)
         print(f"  Reconstruction shape: {recon_view.shape}")
         print(f"  Reconstruction dtype: {recon_view.dtype}")
-        print(f"  Reconstruction range: [{recon_view.min():.2f}, {recon_view.max():.2f}]")
+        print(
+            f"  Reconstruction range: [{recon_view.min():.2f}, {recon_view.max():.2f}]")
 
         # Save if PIL available
         try:
@@ -113,17 +116,36 @@ def main() -> None:
         except ImportError:
             print("  (PIL not available for saving, skipping image export)")
     else:
-        print("✗ ReconRGB component not created")
+        print("[X] ReconRGB component not created")
         return
 
-    # Calculate metrics
-    print("\nMetrics:")
-    mse = np.mean((img.astype(np.float32) / 255 - recon_view) ** 2)
-    psnr = 10 * np.log10(1.0 / mse) if mse > 0 else float("inf")
-    print(f"  MSE: {mse:.6f}")
-    print(f"  PSNR: {psnr:.2f} dB")
+    # Calculate metrics using the metrics systems (Phase 12)
+    print("\nComputing quality metrics...")
 
-    print("\n✓ Test completed successfully!")
+    # Create RGB component from original image for metric computation
+    rgb_ref = world.arena.copy_tensor(img.astype(np.float32) / 255.0)
+    world.add_component(eid, RGB(pix=rgb_ref))
+
+    # Compute PSNR - result stored in world.metadata[eid]["psnr"]
+    psnr_system = MetricPSNR(
+        src_component=RGB, recon_component=ReconRGB, data_range=1.0)
+    psnr_system.run(world, [eid])
+
+    # Compute SSIM - result stored in world.metadata[eid]["ssim"]
+    ssim_system = MetricSSIM(
+        src_component=RGB, recon_component=ReconRGB, data_range=1.0)
+    ssim_system.run(world, [eid])
+
+    # Also compute MSE manually for comparison
+    mse = np.mean((img.astype(np.float32) / 255 - recon_view) ** 2)
+
+    print("\nMetrics:")
+    print(
+        f"  PSNR: {world.metadata[eid]['psnr']:.2f} dB (via MetricPSNR system)")
+    print(f"  SSIM: {world.metadata[eid]['ssim']:.4f} (via MetricSSIM system)")
+    print(f"  MSE:  {mse:.6f} (computed directly)")
+
+    print("\n[OK] Test completed successfully!")
 
 
 if __name__ == "__main__":

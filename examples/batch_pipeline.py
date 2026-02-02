@@ -12,10 +12,11 @@ from pathlib import Path
 
 import numpy as np
 
-from vaerans_ecs.components.image import ReconRGB
+from vaerans_ecs.components.image import RGB, ReconRGB
 from vaerans_ecs.components.latent import Latent4
 from vaerans_ecs.core.world import World
 from vaerans_ecs.systems.hadamard import Hadamard4
+from vaerans_ecs.systems.metrics import MetricPSNR, MetricSSIM
 from vaerans_ecs.systems.vae import OnnxVAEDecode, OnnxVAEEncode
 
 
@@ -70,18 +71,42 @@ def main() -> None:
     print("Decoding batch...")
     decoder.run(world, eids)
 
-    # Report shapes and basic metrics
+    # Add original RGB components for metric computation
+    for i, eid in enumerate(eids):
+        rgb_ref = world.arena.copy_tensor(images[i].astype(np.float32) / 255.0)
+        world.add_component(eid, RGB(pix=rgb_ref))
+
+    # Compute quality metrics using Phase 12 systems
+    # Metrics are stored in world.metadata[eid]
+    print("Computing quality metrics...")
+    psnr_system = MetricPSNR(src_component=RGB, recon_component=ReconRGB, data_range=1.0)
+    ssim_system = MetricSSIM(src_component=RGB, recon_component=ReconRGB, data_range=1.0)
+    
+    psnr_system.run(world, eids)
+    ssim_system.run(world, eids)
+
+    # Report shapes and quality metrics
+    print(f"\n{'Entity':<10} {'Latent Shape':<15} {'Recon Shape':<15} {'PSNR (dB)':<12} {'SSIM':<8}")
+    print("-" * 70)
     for i, eid in enumerate(eids):
         latent = world.get_component(eid, Latent4)
         latent_view = world.arena.view(latent.z)
         recon = world.get_component(eid, ReconRGB)
         recon_view = world.arena.view(recon.pix)
+        psnr_value = world.metadata[eid]["psnr"]
+        ssim_value = world.metadata[eid]["ssim"]
 
-        original = images[i].astype(np.float32) / 255.0
-        mse = float(np.mean((original - recon_view) ** 2))
         print(
-            f"Entity {eid}: latent={latent_view.shape} recon={recon_view.shape} MSE={mse:.6f}"
+            f"{eid:<10} {str(latent_view.shape):<15} {str(recon_view.shape):<15} "
+            f"{psnr_value:<12.2f} {ssim_value:<8.4f}"
         )
+    
+    # Summary statistics
+    psnr_values = [world.metadata[eid]["psnr"] for eid in eids]
+    ssim_values = [world.metadata[eid]["ssim"] for eid in eids]
+    print("-" * 70)
+    print(f"{'Average:':<40} {np.mean(psnr_values):<12.2f} {np.mean(ssim_values):<8.4f}")
+    print(f"{'Std Dev:':<40} {np.std(psnr_values):<12.2f} {np.std(ssim_values):<8.4f}")
 
 
 if __name__ == "__main__":

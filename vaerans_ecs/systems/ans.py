@@ -72,7 +72,7 @@ class ANSEncode(System):
             # Create probability model
             # constriction expects probabilities that sum to 1
             encoder = constriction.stream.stack.AnsCoder()
-            model = constriction.stream.model.Categorical(probs)
+            model = constriction.stream.model.Categorical(probs, perfect=False)
 
             # Encode in reverse order (ANS requirement)
             encoder.encode_reverse(symbols_int, model)
@@ -167,7 +167,7 @@ class ANSDecode(System):
             # Create decoder (needs numpy array, not list)
             compressed_array = np.array(compressed, dtype=np.uint32)
             decoder = constriction.stream.stack.AnsCoder(compressed_array)
-            model = constriction.stream.model.Categorical(probs)
+            model = constriction.stream.model.Categorical(probs, perfect=False)
 
             # Decode symbols
             decoded = decoder.decode(model, n_symbols)
