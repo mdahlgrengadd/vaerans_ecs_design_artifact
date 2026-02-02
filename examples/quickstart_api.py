@@ -78,9 +78,9 @@ def main() -> None:
         help="Quality setting (1-100)",
     )
     parser.add_argument(
-        "--no-hadamard",
+        "--use-hadamard",
         action="store_true",
-        help="Disable Hadamard transform",
+        help="Enable Hadamard transform (currently has reconstruction issues)",
     )
     parser.add_argument(
         "--config",
@@ -113,7 +113,7 @@ def main() -> None:
         image,
         model=args.model,
         quality=args.quality,
-        use_hadamard=not args.no_hadamard,
+        use_hadamard=args.use_hadamard,  # Default: False (disabled until fix is complete)
         config_path=config_arg,
     )
 
