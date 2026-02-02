@@ -9,6 +9,7 @@ A developer-friendly image compression SDK using Variational Autoencoder (VAE) e
 - **Zero-Copy Memory**: Arena allocation with TensorRef handles for minimal overhead
 - **Flexible Pipeline**: Fluent API with method chaining and branching
 - **Batch Processing**: Automatic batching of operations with identical shapes
+- **GPU Acceleration**: CUDA support for 10-30x faster VAE operations (optional)
 - **Type Safety**: Pydantic models with full mypy support
 
 ## Installation
@@ -48,6 +49,10 @@ print(f"Reconstructed shape: {reconstructed.shape}")
 Copy `vaerans_ecs.toml.example` to `vaerans_ecs.toml` and configure your ONNX model paths:
 
 ```toml
+[models]
+# GPU acceleration (requires: pip install onnxruntime-gpu)
+execution_provider = "CUDAExecutionProvider"  # or "CPUExecutionProvider"
+
 [models.sdxl-vae]
 encoder = "/path/to/sdxl_vae_encoder.onnx"
 decoder = "/path/to/sdxl_vae_decoder.onnx"
@@ -58,6 +63,21 @@ Or set the `VAERANS_CONFIG` environment variable:
 ```bash
 export VAERANS_CONFIG=/path/to/your/config.toml
 ```
+
+### GPU Acceleration
+
+Enable GPU acceleration for 10-30x faster VAE operations:
+
+```bash
+# Install GPU-enabled ONNX Runtime
+pip uninstall onnxruntime
+pip install onnxruntime-gpu
+
+# Test your setup
+python test_cuda_setup.py
+```
+
+See [`GPU_SETUP.md`](GPU_SETUP.md) for detailed instructions.
 
 ## Advanced Usage
 

@@ -4,8 +4,13 @@
 
 [models]
 # ONNX Runtime execution provider
-# Options: "CPUExecutionProvider", "CUDAExecutionProvider", "TensorrtExecutionProvider"
-execution_provider = "CPUExecutionProvider"
+# Options:
+#   - "CPUExecutionProvider"  (default, always available)
+#   - "CUDAExecutionProvider" (requires: pip install onnxruntime-gpu)
+#   - "TensorrtExecutionProvider" (requires TensorRT installation)
+# 
+# Note: The SDK will automatically fall back to CPU if the requested provider is unavailable
+execution_provider = "CUDAExecutionProvider"
 
 # VAE model paths (required for compression)
 # These should be ONNX models with the following interface:

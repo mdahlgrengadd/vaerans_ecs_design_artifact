@@ -50,8 +50,12 @@ def _resolve_config_path(config_path: str | None) -> str:
     )
 
 
-def _load_model_config(model_name: str, config_path: str | None) -> tuple[dict[str, Any], str]:
-    """Load model-specific configuration and return it with resolved config path."""
+def _load_model_config(model_name: str, config_path: str | None) -> tuple[dict[str, Any], str, str]:
+    """Load model-specific configuration and return it with resolved config path and execution provider.
+    
+    Returns:
+        tuple: (model_config, resolved_path, execution_provider)
+    """
     resolved_path = _resolve_config_path(config_path)
     if not os.path.exists(resolved_path):
         raise FileNotFoundError(
@@ -65,7 +69,43 @@ def _load_model_config(model_name: str, config_path: str | None) -> tuple[dict[s
         raise ValueError(
             f"Model '{model_name}' not configured in {resolved_path}"
         ) from e
-    return model_cfg, resolved_path
+    
+    # Get execution provider from config (models.execution_provider)
+    execution_provider = config.get("models", {}).get("execution_provider", "CPUExecutionProvider")
+    if not isinstance(execution_provider, str):
+        execution_provider = "CPUExecutionProvider"
+    
+    return model_cfg, resolved_path, execution_provider
+
+
+def _get_execution_providers(requested: str) -> list[str]:
+    """Get list of execution providers with fallback.
+    
+    Args:
+        requested: Requested provider (e.g., "CUDAExecutionProvider")
+        
+    Returns:
+        List of providers to try in order (requested first, then CPU fallback)
+    """
+    if not HAS_ORT:
+        return ["CPUExecutionProvider"]
+    
+    available = ort.get_available_providers()
+    providers = []
+    
+    # Add requested provider if available
+    if requested in available:
+        providers.append(requested)
+    elif requested != "CPUExecutionProvider":
+        # Warn if requested provider is not available
+        print(f"Warning: {requested} not available. Available providers: {available}")
+        print(f"         Falling back to CPUExecutionProvider")
+    
+    # Always add CPU as fallback
+    if "CPUExecutionProvider" not in providers:
+        providers.append("CPUExecutionProvider")
+    
+    return providers
 
 
 def _parse_range(value: Any, field_name: str) -> str | None:
@@ -135,6 +175,7 @@ class OnnxVAEEncode(System):
         self._session = None
         self._model_config: dict[str, Any] | None = None
         self._resolved_config_path: str | None = None
+        self._execution_provider: str | None = None
 
         # Optional preprocessing/scaling hints
         self._input_range: str | None = None
@@ -150,7 +191,7 @@ class OnnxVAEEncode(System):
     def _get_model_config(self) -> dict[str, Any]:
         """Load and cache model config."""
         if self._model_config is None:
-            self._model_config, self._resolved_config_path = _load_model_config(
+            self._model_config, self._resolved_config_path, self._execution_provider = _load_model_config(
                 self.model_name, self.config_path
             )
         return self._model_config
@@ -175,11 +216,22 @@ class OnnxVAEEncode(System):
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model not found at {model_path}")
 
-        # Create ONNX Runtime session
+        # Get execution provider from config
+        if self._execution_provider is None:
+            # Trigger config load if not already loaded
+            self._get_model_config()
+        
+        providers = _get_execution_providers(self._execution_provider or "CPUExecutionProvider")
+        
+        # Create ONNX Runtime session with configured providers
         session = ort.InferenceSession(
             model_path,
-            providers=["CPUExecutionProvider"],
+            providers=providers,
         )
+        
+        # Log which provider is actually being used
+        provider = session.get_providers()[0]
+        print(f"VAE Encoder loaded: {os.path.basename(model_path)} using {provider}")
 
         # Auto-detect input/output names from model
         if session.get_inputs():
@@ -341,6 +393,7 @@ class OnnxVAEDecode(System):
         self.output_name = "output"
         self._model_config: dict[str, Any] | None = None
         self._resolved_config_path: str | None = None
+        self._execution_provider: str | None = None
 
         self._output_range: str | None = None
         self._latent_scale: float | None = None
@@ -356,7 +409,7 @@ class OnnxVAEDecode(System):
     def _get_model_config(self) -> dict[str, Any]:
         """Load and cache model config."""
         if self._model_config is None:
-            self._model_config, self._resolved_config_path = _load_model_config(
+            self._model_config, self._resolved_config_path, self._execution_provider = _load_model_config(
                 self.model_name, self.config_path
             )
         return self._model_config
@@ -392,11 +445,22 @@ class OnnxVAEDecode(System):
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model not found at {model_path}")
 
-        # Create ONNX Runtime session
+        # Get execution provider from config
+        if self._execution_provider is None:
+            # Trigger config load if not already loaded
+            self._get_model_config()
+        
+        providers = _get_execution_providers(self._execution_provider or "CPUExecutionProvider")
+        
+        # Create ONNX Runtime session with configured providers
         session = ort.InferenceSession(
             model_path,
-            providers=["CPUExecutionProvider"],
+            providers=providers,
         )
+        
+        # Log which provider is actually being used
+        provider = session.get_providers()[0]
+        print(f"VAE Decoder loaded: {os.path.basename(model_path)} using {provider}")
 
         # Auto-detect input/output names from model
         if session.get_inputs():
