@@ -22,8 +22,10 @@ from vaerans_ecs.systems.vae import OnnxVAEDecode, OnnxVAEEncode
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Batch VAE pipeline example")
-    parser.add_argument("--count", type=int, default=3, help="Number of images")
-    parser.add_argument("--size", type=int, default=256, help="Square image size")
+    parser.add_argument("--count", type=int, default=3,
+                        help="Number of images")
+    parser.add_argument("--size", type=int, default=256,
+                        help="Square image size")
     parser.add_argument(
         "--model",
         default="sdxl-vae",
@@ -79,9 +81,11 @@ def main() -> None:
     # Compute quality metrics using Phase 12 systems
     # Metrics are stored in world.metadata[eid]
     print("Computing quality metrics...")
-    psnr_system = MetricPSNR(src_component=RGB, recon_component=ReconRGB, data_range=1.0)
-    ssim_system = MetricSSIM(src_component=RGB, recon_component=ReconRGB, data_range=1.0)
-    
+    psnr_system = MetricPSNR(
+        src_component=RGB, recon_component=ReconRGB, data_range=1.0)
+    ssim_system = MetricSSIM(
+        src_component=RGB, recon_component=ReconRGB, data_range=1.0)
+
     psnr_system.run(world, eids)
     ssim_system.run(world, eids)
 
@@ -100,7 +104,7 @@ def main() -> None:
             f"{eid:<10} {str(latent_view.shape):<15} {str(recon_view.shape):<15} "
             f"{psnr_value:<12.2f} {ssim_value:<8.4f}"
         )
-    
+
     # Summary statistics
     psnr_values = [world.metadata[eid]["psnr"] for eid in eids]
     ssim_values = [world.metadata[eid]["ssim"] for eid in eids]

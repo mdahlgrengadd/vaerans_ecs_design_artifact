@@ -151,7 +151,8 @@ class WaveletCDF53(System):
                 for detail_idx, detail in enumerate([cH, cV, cD]):
                     all_coeffs.append(detail.ravel())
                     index_data.append(
-                        [channel_idx, level_idx, detail.shape[0], detail.shape[1], detail_idx]
+                        [channel_idx, level_idx, detail.shape[0],
+                            detail.shape[1], detail_idx]
                     )
 
         # Concatenate all coefficients
@@ -188,8 +189,8 @@ class WaveletCDF53(System):
         for row in index:
             ch, level, h, w, detail_idx = row
             size = h * w
-            coeff = packed[offset : offset + size].reshape(h, w)
-            
+            coeff = packed[offset: offset + size].reshape(h, w)
+
             if detail_idx == -1:
                 # Approximation coefficients (stored first in list)
                 coeffs_list[ch].insert(0, coeff)
@@ -201,7 +202,7 @@ class WaveletCDF53(System):
 
                 if isinstance(coeffs_list[ch][level], list):
                     coeffs_list[ch][level][detail_idx] = coeff
-            
+
             offset += size
 
         # Convert detail lists to tuples

@@ -22,7 +22,8 @@ except ImportError:
 try:
     import tomllib  # type: ignore[import-not-found, unused-ignore]
 except ImportError:
-    import tomli as tomllib  # type: ignore[import-not-found, no-redef, unused-ignore]
+    # type: ignore[import-not-found, no-redef, unused-ignore]
+    import tomli as tomllib
 
 from vaerans_ecs.components.image import RGB, ReconRGB
 from vaerans_ecs.components.latent import Latent4
@@ -52,7 +53,7 @@ def _resolve_config_path(config_path: str | None) -> str:
 
 def _load_model_config(model_name: str, config_path: str | None) -> tuple[dict[str, Any], str, str]:
     """Load model-specific configuration and return it with resolved config path and execution provider.
-    
+
     Returns:
         tuple: (model_config, resolved_path, execution_provider)
     """
@@ -69,42 +70,44 @@ def _load_model_config(model_name: str, config_path: str | None) -> tuple[dict[s
         raise ValueError(
             f"Model '{model_name}' not configured in {resolved_path}"
         ) from e
-    
+
     # Get execution provider from config (models.execution_provider)
-    execution_provider = config.get("models", {}).get("execution_provider", "CPUExecutionProvider")
+    execution_provider = config.get("models", {}).get(
+        "execution_provider", "CPUExecutionProvider")
     if not isinstance(execution_provider, str):
         execution_provider = "CPUExecutionProvider"
-    
+
     return model_cfg, resolved_path, execution_provider
 
 
 def _get_execution_providers(requested: str) -> list[str]:
     """Get list of execution providers with fallback.
-    
+
     Args:
         requested: Requested provider (e.g., "CUDAExecutionProvider")
-        
+
     Returns:
         List of providers to try in order (requested first, then CPU fallback)
     """
     if not HAS_ORT:
         return ["CPUExecutionProvider"]
-    
+
     available = ort.get_available_providers()
     providers = []
-    
+
     # Add requested provider if available
     if requested in available:
         providers.append(requested)
     elif requested != "CPUExecutionProvider":
         # Warn if requested provider is not available
-        print(f"Warning: {requested} not available. Available providers: {available}")
+        print(
+            f"Warning: {requested} not available. Available providers: {available}")
         print(f"         Falling back to CPUExecutionProvider")
-    
+
     # Always add CPU as fallback
     if "CPUExecutionProvider" not in providers:
         providers.append("CPUExecutionProvider")
-    
+
     return providers
 
 
@@ -199,13 +202,15 @@ class OnnxVAEEncode(System):
     def _get_input_range(self) -> str | None:
         if self._input_range is None:
             model_cfg = self._get_model_config()
-            self._input_range = _parse_range(model_cfg.get("input_range"), "input_range")
+            self._input_range = _parse_range(
+                model_cfg.get("input_range"), "input_range")
         return self._input_range
 
     def _get_latent_scale(self) -> float | None:
         if self._latent_scale is None:
             model_cfg = self._get_model_config()
-            value = model_cfg.get("latent_scale", model_cfg.get("scaling_factor"))
+            value = model_cfg.get(
+                "latent_scale", model_cfg.get("scaling_factor"))
             self._latent_scale = float(value) if value is not None else None
         return self._latent_scale
 
@@ -220,18 +225,20 @@ class OnnxVAEEncode(System):
         if self._execution_provider is None:
             # Trigger config load if not already loaded
             self._get_model_config()
-        
-        providers = _get_execution_providers(self._execution_provider or "CPUExecutionProvider")
-        
+
+        providers = _get_execution_providers(
+            self._execution_provider or "CPUExecutionProvider")
+
         # Create ONNX Runtime session with configured providers
         session = ort.InferenceSession(
             model_path,
             providers=providers,
         )
-        
+
         # Log which provider is actually being used
         provider = session.get_providers()[0]
-        print(f"VAE Encoder loaded: {os.path.basename(model_path)} using {provider}")
+        print(
+            f"VAE Encoder loaded: {os.path.basename(model_path)} using {provider}")
 
         # Auto-detect input/output names from model
         if session.get_inputs():
@@ -417,13 +424,15 @@ class OnnxVAEDecode(System):
     def _get_output_range(self) -> str | None:
         if self._output_range is None:
             model_cfg = self._get_model_config()
-            self._output_range = _parse_range(model_cfg.get("output_range"), "output_range")
+            self._output_range = _parse_range(
+                model_cfg.get("output_range"), "output_range")
         return self._output_range
 
     def _get_latent_scale(self) -> float | None:
         if self._latent_scale is None:
             model_cfg = self._get_model_config()
-            value = model_cfg.get("latent_scale", model_cfg.get("scaling_factor"))
+            value = model_cfg.get(
+                "latent_scale", model_cfg.get("scaling_factor"))
             self._latent_scale = float(value) if value is not None else None
         return self._latent_scale
 
@@ -449,18 +458,20 @@ class OnnxVAEDecode(System):
         if self._execution_provider is None:
             # Trigger config load if not already loaded
             self._get_model_config()
-        
-        providers = _get_execution_providers(self._execution_provider or "CPUExecutionProvider")
-        
+
+        providers = _get_execution_providers(
+            self._execution_provider or "CPUExecutionProvider")
+
         # Create ONNX Runtime session with configured providers
         session = ort.InferenceSession(
             model_path,
             providers=providers,
         )
-        
+
         # Log which provider is actually being used
         provider = session.get_providers()[0]
-        print(f"VAE Decoder loaded: {os.path.basename(model_path)} using {provider}")
+        print(
+            f"VAE Decoder loaded: {os.path.basename(model_path)} using {provider}")
 
         # Auto-detect input/output names from model
         if session.get_inputs():
@@ -561,4 +572,5 @@ class OnnxVAEDecode(System):
         for i, eid in enumerate(eids):
             image_data = images[i]  # (H, W, 3)
             recon_ref = world.arena.copy_tensor(image_data)
-            world.add_component(eid, ReconRGB(pix=recon_ref, colorspace="sRGB"))
+            world.add_component(eid, ReconRGB(
+                pix=recon_ref, colorspace="sRGB"))

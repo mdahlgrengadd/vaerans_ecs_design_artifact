@@ -23,8 +23,8 @@ test_latent = np.array([
 
 print("\n1. Original Latent:")
 print(f"   Shape: {test_latent.shape}")
-print(f"   C0[0,0]={test_latent[0,0,0]}, C1[0,0]={test_latent[1,0,0]}")
-print(f"   C2[0,0]={test_latent[2,0,0]}, C3[0,0]={test_latent[3,0,0]}")
+print(f"   C0[0,0]={test_latent[0, 0, 0]}, C1[0,0]={test_latent[1, 0, 0]}")
+print(f"   C2[0,0]={test_latent[2, 0, 0]}, C3[0,0]={test_latent[3, 0, 0]}")
 
 # Manual calculation for pixel [0,0]
 C0, C1, C2, C3 = 10.0, 5.0, 8.0, 12.0
@@ -53,13 +53,13 @@ yuvw = world.get_component(entity, YUVW4)
 yuvw_data = world.arena.view(yuvw.t)
 
 print(f"   Actual YUVW at [0,0]:")
-print(f"   Y = {yuvw_data[0,0,0]}")
-print(f"   U = {yuvw_data[1,0,0]}")
-print(f"   V = {yuvw_data[2,0,0]}")
-print(f"   W = {yuvw_data[3,0,0]}")
+print(f"   Y = {yuvw_data[0, 0, 0]}")
+print(f"   U = {yuvw_data[1, 0, 0]}")
+print(f"   V = {yuvw_data[2, 0, 0]}")
+print(f"   W = {yuvw_data[3, 0, 0]}")
 
 # Check if they match
-if np.allclose([yuvw_data[0,0,0], yuvw_data[1,0,0], yuvw_data[2,0,0], yuvw_data[3,0,0]],
+if np.allclose([yuvw_data[0, 0, 0], yuvw_data[1, 0, 0], yuvw_data[2, 0, 0], yuvw_data[3, 0, 0]],
                [Y_expected, U_expected, V_expected, W_expected]):
     print("   [OK] Forward transform matches expected values!")
 else:
@@ -75,10 +75,10 @@ latent_recon = world.get_component(entity, Latent4)
 latent_recon_data = world.arena.view(latent_recon.z)
 
 print(f"   Reconstructed at [0,0]:")
-print(f"   C0 = {latent_recon_data[0,0,0]} (original: {C0})")
-print(f"   C1 = {latent_recon_data[1,0,0]} (original: {C1})")
-print(f"   C2 = {latent_recon_data[2,0,0]} (original: {C2})")
-print(f"   C3 = {latent_recon_data[3,0,0]} (original: {C3})")
+print(f"   C0 = {latent_recon_data[0, 0, 0]} (original: {C0})")
+print(f"   C1 = {latent_recon_data[1, 0, 0]} (original: {C1})")
+print(f"   C2 = {latent_recon_data[2, 0, 0]} (original: {C2})")
+print(f"   C3 = {latent_recon_data[3, 0, 0]} (original: {C3})")
 
 # Check reconstruction
 if np.allclose(latent_recon_data, test_latent, atol=1e-5):

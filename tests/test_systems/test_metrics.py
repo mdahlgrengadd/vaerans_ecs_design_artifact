@@ -311,7 +311,7 @@ class TestMetricsIntegration:
         # Simulate reconstruction (just copy for testing)
         latent_recon = world.get_component(entity, Latent4)
         latent_recon_data = world.arena.view(latent_recon.z)
-        
+
         # Create dummy reconstruction image
         recon_data = np.random.rand(64, 64, 3).astype(np.float32)
         recon_ref = world.arena.copy_tensor(recon_data)

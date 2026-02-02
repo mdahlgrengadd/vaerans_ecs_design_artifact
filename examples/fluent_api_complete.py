@@ -45,7 +45,7 @@ def _load_image(path: Path) -> np.ndarray | None:
 
 def example_1_simple_chaining(world: World, entity: int, config: str | None) -> int:
     """Example 1: Simple method chaining with .to()
-    
+
     Returns:
         Safe number of wavelet decomposition levels for this image
     """
@@ -70,7 +70,7 @@ def example_1_simple_chaining(world: World, entity: int, config: str | None) -> 
 
     latent_view = world.arena.view(latent.z)
     print(f"[OK] Encoded to latent shape: {latent_view.shape}")
-    
+
     # Calculate safe wavelet levels based on smallest latent dimension
     # Rule: smallest_dim / 2^levels >= 8 (leave at least 8 pixels to avoid boundary effects)
     # PyWavelets recommends conservative margins to avoid boundary artifacts
@@ -79,9 +79,10 @@ def example_1_simple_chaining(world: World, entity: int, config: str | None) -> 
     safe_levels = max(1, int(np.log2(min_dim // 8)))
     safe_levels = min(safe_levels, 4)  # Cap at 4 for demonstration
     pixels_after = min_dim // (2**safe_levels)
-    print(f"[INFO] Calculated safe wavelet levels: {safe_levels} (min latent dim {min_dim} -> {pixels_after} pixels after {safe_levels} levels)")
+    print(
+        f"[INFO] Calculated safe wavelet levels: {safe_levels} (min latent dim {min_dim} -> {pixels_after} pixels after {safe_levels} levels)")
     print()
-    
+
     return safe_levels
 
 
@@ -120,7 +121,8 @@ def example_3_full_compression(world: World, entity: int, quality: int, wavelet_
     print("  bitstream = (")
     print("      world.pipe(entity)")
     print("           .to(Hadamard4(mode='forward'))")
-    print(f"           .to(WaveletCDF53(levels={wavelet_levels}, mode='forward'))")
+    print(
+        f"           .to(WaveletCDF53(levels={wavelet_levels}, mode='forward'))")
     print(f"           .to(QuantizeU8(quality={quality}, mode='forward'))")
     print("           .to(ANSEncode())")
     print("           .out(ANSBitstream)")
@@ -166,7 +168,8 @@ def example_4_component_selection(world: World, entity: int, config: str | None,
     print("           .select(ANSBitstream)  # Start from compressed data")
     print("           .to(ANSDecode())")
     print(f"           .to(QuantizeU8(quality={quality}, mode='inverse'))")
-    print(f"           .to(WaveletCDF53(levels={wavelet_levels}, mode='inverse'))")
+    print(
+        f"           .to(WaveletCDF53(levels={wavelet_levels}, mode='inverse'))")
     print("           .to(Hadamard4(mode='inverse'))")
     print("           .to(OnnxVAEDecode(model='sdxl-vae'))")
     print("           .out(ReconRGB)")
@@ -308,7 +311,8 @@ def main() -> None:
     wavelet_levels = example_1_simple_chaining(world, entity, config_arg)
     example_2_pipe_operator(world, entity)
     example_3_full_compression(world, entity, args.quality, wavelet_levels)
-    example_4_component_selection(world, entity, config_arg, args.quality, wavelet_levels)
+    example_4_component_selection(
+        world, entity, config_arg, args.quality, wavelet_levels)
     example_5_metrics_integration(world, entity)
     example_6_execute_without_output(world, entity)
 

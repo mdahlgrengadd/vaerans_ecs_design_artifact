@@ -30,16 +30,18 @@ print(f"   Metadata: use_hadamard={info.get('use_hadamard', 'MISSING')}")
 print("   Decompressing...")
 try:
     recon_with = decompress(compressed_with)
-    print(f"   Reconstructed shape: {recon_with.shape}, dtype: {recon_with.dtype}")
-    
+    print(
+        f"   Reconstructed shape: {recon_with.shape}, dtype: {recon_with.dtype}")
+
     # Check range
     if 0 <= recon_with.min() and recon_with.max() <= 1.0:
         print("   [OK] Values in valid range [0, 1]")
     else:
-        print(f"   [WARN] Values out of range: [{recon_with.min()}, {recon_with.max()}]")
-    
+        print(
+            f"   [WARN] Values out of range: [{recon_with.min()}, {recon_with.max()}]")
+
     print("   [OK] Decompression with Hadamard successful!")
-    
+
 except Exception as e:
     print(f"   [ERROR] Decompression failed: {e}")
     import traceback
@@ -62,16 +64,18 @@ print(f"   Metadata: use_hadamard={info2.get('use_hadamard', 'MISSING')}")
 print("   Decompressing...")
 try:
     recon_without = decompress(compressed_without)
-    print(f"   Reconstructed shape: {recon_without.shape}, dtype: {recon_without.dtype}")
-    
+    print(
+        f"   Reconstructed shape: {recon_without.shape}, dtype: {recon_without.dtype}")
+
     # Check range
     if 0 <= recon_without.min() and recon_without.max() <= 1.0:
         print("   [OK] Values in valid range [0, 1]")
     else:
-        print(f"   [WARN] Values out of range: [{recon_without.min()}, {recon_without.max()}]")
-    
+        print(
+            f"   [WARN] Values out of range: [{recon_without.min()}, {recon_without.max()}]")
+
     print("   [OK] Decompression without Hadamard successful!")
-    
+
 except Exception as e:
     print(f"   [ERROR] Decompression failed: {e}")
     import traceback

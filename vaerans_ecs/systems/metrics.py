@@ -332,7 +332,8 @@ class MetricMSSSIM(System):
                     # Simple downsampling (average pooling)
                     if current_src.ndim == 3:
                         current_src = current_src[: new_h * 2, : new_w * 2, :]
-                        current_recon = current_recon[: new_h * 2, : new_w * 2, :]
+                        current_recon = current_recon[: new_h *
+                                                      2, : new_w * 2, :]
                         current_src = current_src.reshape(
                             new_h, 2, new_w, 2, current_src.shape[2]
                         ).mean(axis=(1, 3))

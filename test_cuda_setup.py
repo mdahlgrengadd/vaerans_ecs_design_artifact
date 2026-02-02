@@ -10,13 +10,13 @@ print("=" * 60)
 try:
     import onnxruntime as ort
     print(f"[OK] onnxruntime installed: v{ort.__version__}")
-    
+
     available_providers = ort.get_available_providers()
     print(f"\n[INFO] Available providers:")
     for provider in available_providers:
         marker = "[GPU]" if "CUDA" in provider or "Tensorrt" in provider else "[CPU]"
         print(f"   {marker} {provider}")
-    
+
     if "CUDAExecutionProvider" in available_providers:
         print("\n[OK] CUDA provider is available!")
         print("     Your VAE models will run on GPU")
@@ -26,7 +26,7 @@ try:
         print("       1. Uninstall CPU version: pip uninstall onnxruntime")
         print("       2. Install GPU version: pip install onnxruntime-gpu")
         print("       3. Ensure CUDA is installed on your system")
-        
+
 except ImportError:
     print("[ERROR] onnxruntime not installed")
     print("        Install with: pip install onnxruntime-gpu")
@@ -41,22 +41,22 @@ try:
     from vaerans_ecs.systems.vae import OnnxVAEEncode
     from vaerans_ecs.core.world import World
     import numpy as np
-    
+
     # Create a simple test
     world = World(arena_bytes=100 << 20)
     test_image = np.random.randint(0, 256, (256, 256, 3), dtype=np.uint8)
     eid = world.spawn_image(test_image)
-    
+
     # Try to create encoder (will trigger session load)
     print("Loading VAE encoder...")
     encoder = OnnxVAEEncode(model='test-vae', mode='encode')
-    
+
     print("\nAttempting encode operation...")
     encoder.run(world, [eid])
-    
+
     print("\n[OK] Encoder test successful!")
     print("     Check the output above to see which provider was used.")
-    
+
 except Exception as e:
     print(f"\n[WARN] Test failed: {e}")
     print("       This is expected if ONNX models are not present.")

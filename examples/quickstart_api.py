@@ -113,7 +113,8 @@ def main() -> None:
         image,
         model=args.model,
         quality=args.quality,
-        use_hadamard=args.use_hadamard,  # Default: False (disabled until fix is complete)
+        # Default: False (disabled until fix is complete)
+        use_hadamard=args.use_hadamard,
         config_path=config_arg,
     )
 

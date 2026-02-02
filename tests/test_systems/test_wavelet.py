@@ -289,10 +289,10 @@ class TestWaveletHaar:
         # Verify different wavelet types
         assert pyr1.wavelet == "bior2.2"
         assert pyr2.wavelet == "haar"
-        
+
         # Both should have same levels
         assert pyr1.levels == pyr2.levels
-        
+
         # Packed arrays may have different sizes due to boundary handling
         # but both should have valid data
         packed1 = world.arena.view(pyr1.packed)

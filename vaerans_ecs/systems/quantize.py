@@ -109,7 +109,7 @@ class QuantizeU8(System):
         for eid in eids:
             symbols = world.get_component(eid, SymbolsU8)
             quantized = world.arena.view(symbols.data)
-            
+
             # Get quantization parameters
             scales = world.arena.view(symbols.params.scales)
             offsets = world.arena.view(symbols.params.offsets)
@@ -125,11 +125,11 @@ class QuantizeU8(System):
             # In a real implementation, we'd store index metadata with SymbolsU8
             # For this phase, we'll require the original WaveletPyr to still exist
             # or we need to extend SymbolsU8 to store index and levels
-            
+
             # For now, let's assume we have access to the original metadata
             # This is a simplification - in practice, we'd need to serialize
             # the wavelet pyramid structure along with the quantized data
-            
+
             # Create a dummy index (this is a limitation of current design)
             # In full implementation, index should be part of serialized metadata
             if world.has_component(eid, WaveletPyr):
@@ -176,7 +176,7 @@ class QuantizeU8(System):
             for i, row in enumerate(index):
                 _ch, _level, h, w, _detail_idx = row
                 size = h * w
-                band = packed[offset_pos : offset_pos + size]
+                band = packed[offset_pos: offset_pos + size]
 
                 # Compute min/max for this band
                 band_min = float(band.min())
@@ -245,12 +245,14 @@ class QuantizeU8(System):
             # This is a simplification - proper implementation would track band boundaries
             scale = scales[0] if len(scales) > 0 else 1.0
             offset_val = offsets[0] if len(offsets) > 0 else 0.0
-            
-            quantized = ((packed - offset_val) * scale).clip(0, 255).astype(np.uint8)
+
+            quantized = ((packed - offset_val) *
+                         scale).clip(0, 255).astype(np.uint8)
         else:
             scale = scales[0]
             offset_val = offsets[0]
-            quantized = ((packed - offset_val) * scale).clip(0, 255).astype(np.uint8)
+            quantized = ((packed - offset_val) *
+                         scale).clip(0, 255).astype(np.uint8)
 
         return quantized
 

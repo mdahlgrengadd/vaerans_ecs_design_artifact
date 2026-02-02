@@ -223,7 +223,7 @@ class TestANSRoundTrip:
         # Add some structure
         t_data[0, :32, :32] = 1.0
         t_data[1, 32:, 32:] = 2.0
-        
+
         t_ref = world.arena.copy_tensor(t_data)
         world.add_component(entity, YUVW4(t=t_ref))
 
@@ -248,7 +248,8 @@ class TestANSRoundTrip:
         compressed_data = world.arena.view(bitstream.data)
         compressed_size = len(compressed_data)
 
-        print(f"Original: {orig_size} bytes, Compressed: {compressed_size} bytes")
+        print(
+            f"Original: {orig_size} bytes, Compressed: {compressed_size} bytes")
         print(f"Compression ratio: {orig_size / compressed_size:.2f}x")
 
         # Structured data should achieve some compression
@@ -265,8 +266,10 @@ class TestANSRoundTrip:
         from vaerans_ecs.components.quant import QuantParams
         data_ref1 = world.arena.copy_tensor(symbols1)
         scales_ref = world.arena.copy_tensor(np.array([1.0], dtype=np.float32))
-        offsets_ref = world.arena.copy_tensor(np.array([0.0], dtype=np.float32))
-        params = QuantParams(scales=scales_ref, offsets=offsets_ref, quality=50)
+        offsets_ref = world.arena.copy_tensor(
+            np.array([0.0], dtype=np.float32))
+        params = QuantParams(
+            scales=scales_ref, offsets=offsets_ref, quality=50)
         world.add_component(entity1, SymbolsU8(data=data_ref1, params=params))
 
         encoder1 = ANSEncode()
@@ -285,7 +288,8 @@ class TestANSRoundTrip:
         symbols2 = np.zeros(10000, dtype=np.uint8)
         symbols2[::10] = np.random.randint(1, 256, 1000, dtype=np.uint8)
         data_ref2 = world.arena.copy_tensor(symbols2)
-        params2 = QuantParams(scales=scales_ref, offsets=offsets_ref, quality=50)
+        params2 = QuantParams(
+            scales=scales_ref, offsets=offsets_ref, quality=50)
         world.add_component(entity2, SymbolsU8(data=data_ref2, params=params2))
 
         encoder2 = ANSEncode()
@@ -312,8 +316,10 @@ class TestANSEdgeCases:
         from vaerans_ecs.components.quant import QuantParams
         data_ref = world.arena.copy_tensor(symbols)
         scales_ref = world.arena.copy_tensor(np.array([1.0], dtype=np.float32))
-        offsets_ref = world.arena.copy_tensor(np.array([0.0], dtype=np.float32))
-        params = QuantParams(scales=scales_ref, offsets=offsets_ref, quality=50)
+        offsets_ref = world.arena.copy_tensor(
+            np.array([0.0], dtype=np.float32))
+        params = QuantParams(
+            scales=scales_ref, offsets=offsets_ref, quality=50)
         world.add_component(entity, SymbolsU8(data=data_ref, params=params))
 
         # Encode and decode
@@ -338,8 +344,10 @@ class TestANSEdgeCases:
         from vaerans_ecs.components.quant import QuantParams
         data_ref = world.arena.copy_tensor(symbols)
         scales_ref = world.arena.copy_tensor(np.array([1.0], dtype=np.float32))
-        offsets_ref = world.arena.copy_tensor(np.array([0.0], dtype=np.float32))
-        params = QuantParams(scales=scales_ref, offsets=offsets_ref, quality=50)
+        offsets_ref = world.arena.copy_tensor(
+            np.array([0.0], dtype=np.float32))
+        params = QuantParams(
+            scales=scales_ref, offsets=offsets_ref, quality=50)
         world.add_component(entity, SymbolsU8(data=data_ref, params=params))
 
         encoder = ANSEncode()

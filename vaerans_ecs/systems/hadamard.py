@@ -37,7 +37,7 @@ class Hadamard4(System):
     Modes:
     - 'encode'/'forward': z -> t (Latent4 to YUVW4)
     - 'decode'/'inverse': t -> z (YUVW4 to Latent4)
-    
+
     Energy distribution after transform:
     - Y: ~70-90% of total energy (captures structure from all channels)
     - U, V: ~10-20% each (chroma-like differences)
@@ -67,7 +67,7 @@ class Hadamard4(System):
 
     def _forward(self, world: World, eids: list[int]) -> None:
         """Forward transform: Latent4 -> YUVW4.
-        
+
         Uses normalized Hadamard with /4 scaling to preserve range:
         Y = (C0 + C1 + C2 + C3) / 4  [average, preserves range]
         U = (C0 - C1 + C2 - C3) / 4  [difference, ±range/2]
@@ -84,7 +84,7 @@ class Hadamard4(System):
 
             # Extract channels
             C0, C1, C2, C3 = z[0], z[1], z[2], z[3]
-            
+
             # Normalized Hadamard transform (divide by 4)
             t[0] = (C0 + C1 + C2 + C3) / 4.0  # Y
             t[1] = (C0 - C1 + C2 - C3) / 4.0  # U
@@ -95,7 +95,7 @@ class Hadamard4(System):
 
     def _inverse(self, world: World, eids: list[int]) -> None:
         """Inverse transform: YUVW4 -> Latent4.
-        
+
         Inverse of normalized Hadamard (no additional scaling needed):
         C0 = Y + U + V + W
         C1 = Y - U + V - W
@@ -112,7 +112,7 @@ class Hadamard4(System):
 
             # Extract YUVW channels
             Y, U, V, W = t[0], t[1], t[2], t[3]
-            
+
             # Inverse normalized Hadamard transform
             z[0] = Y + U + V + W  # C0
             z[1] = Y - U + V - W  # C1

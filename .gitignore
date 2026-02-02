@@ -51,3 +51,7 @@ models/*.bin
 # Logs / temp
 *.log
 *.tmp
+
+# Local output images
+examples/hadamard_channels/
+examples/klt_latent4*.npz

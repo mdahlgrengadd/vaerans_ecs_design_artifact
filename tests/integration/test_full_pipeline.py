@@ -34,7 +34,7 @@ class TestFullPipelineWithoutVAE:
         world.add_component(entity, Latent4(z=latent_ref))
 
         # COMPRESS PIPELINE: Latent4 → Hadamard → Wavelet → Quantize → ANS
-        
+
         # 1. Hadamard forward
         hadamard_fwd = Hadamard4(mode="forward")
         hadamard_fwd.run(world, [entity])
@@ -89,7 +89,7 @@ class TestFullPipelineWithoutVAE:
         # Should be close but not exact (lossy compression)
         mse = np.mean((latent_data - latent_recon_data) ** 2)
         print(f"Reconstruction MSE: {mse:.6f}")
-        
+
         # Reasonable error for quality=70
         assert mse < 0.1
         assert latent_recon_data.shape == latent_data.shape
@@ -175,19 +175,19 @@ class TestFullPipelineWithoutVAE:
 
         # Track component transitions
         assert world.has_component(entity, Latent4)
-        
+
         # Stage 1: Hadamard
         Hadamard4(mode="forward").run(world, [entity])
         assert world.has_component(entity, YUVW4)
-        
+
         # Stage 2: Wavelet
         WaveletCDF53(levels=2, mode="forward").run(world, [entity])
         assert world.has_component(entity, WaveletPyr)
-        
+
         # Stage 3: Quantize
         QuantizeU8(quality=50, mode="forward").run(world, [entity])
         assert world.has_component(entity, SymbolsU8)
-        
+
         # Stage 4: ANS
         ANSEncode().run(world, [entity])
         assert world.has_component(entity, ANSBitstream)
@@ -196,7 +196,7 @@ class TestFullPipelineWithoutVAE:
         bitstream = world.get_component(entity, ANSBitstream)
         data = world.arena.view(bitstream.data)
         probs = world.arena.view(bitstream.probs)
-        
+
         assert len(data) > 0
         assert len(probs) == 256
         assert np.allclose(probs.sum(), 1.0, atol=1e-6)
@@ -241,7 +241,7 @@ class TestFullPipelineWithVAE:
     def test_full_vae_compression(self):
         """Test complete pipeline including VAE encode/decode."""
         from vaerans_ecs.systems.vae import OnnxVAEDecode, OnnxVAEEncode
-        
+
         world = World(arena_bytes=200 << 20)
         entity = world.new_entity()
 
